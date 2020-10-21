@@ -1,4 +1,4 @@
-package main.java.com.mcb.creditfactory.model;
+package com.mcb.creditfactory.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -12,7 +12,7 @@ import java.math.BigDecimal;
 @AllArgsConstructor
 @Entity
 @Table(name = "AIRPLANE")
-public class Airplane {
+public class AirPlane {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
