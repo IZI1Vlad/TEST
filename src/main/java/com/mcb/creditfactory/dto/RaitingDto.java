@@ -8,12 +8,8 @@ import java.math.BigDecimal;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@JsonTypeName("car")
-public class CarDto implements Collateral {
+@JsonTypeName("raiting")
+public class RaitingDto {
     private Long id;
-    private String brand;
-    private String model;
-    private Double power;
-    private Short year;
-    private BigDecimal value;
+    private BigDecimal raiting;
 }

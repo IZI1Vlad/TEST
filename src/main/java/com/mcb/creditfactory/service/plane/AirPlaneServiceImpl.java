@@ -3,20 +3,24 @@ package com.mcb.creditfactory.service.plane;
 import com.mcb.creditfactory.dto.AirPlaneDto;
 import com.mcb.creditfactory.external.ExternalApproveService;
 import com.mcb.creditfactory.model.AirPlane;
+import com.mcb.creditfactory.model.Raiting;
 import com.mcb.creditfactory.repository.AirPlaneRepository;
-import com.mcb.creditfactory.service.plane.AirPlaneService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
+import java.util.Comparator;
 import java.util.Optional;
 
 @Service
-public class AirPlaneServiceImpl implements AirPlaneService {
-    @Autowired
+public class AirplaneServiceImpl implements AirPlaneService {
+    private AirPlaneRepository repository;
     private ExternalApproveService approveService;
 
-    @Autowired
-    private AirPlaneRepository planeRepository;
+
+    public AirplaneServiceImpl(AirPlaneRepository repository, ExternalApproveService approveService) {
+        this.repository = repository;
+        this.approveService = approveService;
+    }
 
     @Override
     public boolean approve(AirPlaneDto dto) {
@@ -25,12 +29,12 @@ public class AirPlaneServiceImpl implements AirPlaneService {
 
     @Override
     public AirPlane save(AirPlane plane) {
-        return planeRepository.save(plane);
+        return repository.save(plane);
     }
 
     @Override
     public Optional<AirPlane> load(Long id) {
-        return planeRepository.findById(id);
+        return repository.findById(id);
     }
 
     @Override
@@ -39,9 +43,10 @@ public class AirPlaneServiceImpl implements AirPlaneService {
                 dto.getId(),
                 dto.getBrand(),
                 dto.getModel(),
-                dto.getPower(),
                 dto.getYear(),
-                dto.getValue()
+                dto.getSize(),
+                dto.getPassengers(),
+                dto.getType()
         );
     }
 
@@ -51,14 +56,22 @@ public class AirPlaneServiceImpl implements AirPlaneService {
                 plane.getId(),
                 plane.getBrand(),
                 plane.getModel(),
-                plane.getPower(),
+                plane.getSize(),
+                plane.getPassengers(),
+                plane.getType(),
                 plane.getYear(),
-                plane.getValue()
+                getLastAssessmentValue(plane)
         );
     }
 
     @Override
-    public Long getId(AirPlane plane) {
-        return plane.getId();
+    public Long getId(AirPlane airplane) {
+        return airplane.getId();
+    }
+
+    private BigDecimal getLastAssessmentValue(AirPlane plane) {
+        return plane.getRaiting().stream()
+                .max(Comparator.comparing(Raiting::getLocalDate))
+                .get().getRaiting();
     }
 }

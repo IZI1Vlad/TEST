@@ -1,4 +1,4 @@
-package com.mcb.creditfactory.service.plane;
+package com.mcb.creditfactory.service.airplane;
 
 import com.mcb.creditfactory.dto.AirPlaneDto;
 import com.mcb.creditfactory.external.CollateralObject;
@@ -9,7 +9,6 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 
 @AllArgsConstructor
-
 public class AirPlaneAdapter implements CollateralObject {
     private AirPlaneDto plane;
 
@@ -25,11 +24,11 @@ public class AirPlaneAdapter implements CollateralObject {
 
     @Override
     public LocalDate getDate() {
-        // Для автомобилей дата оценки не используется, поэтому всегда берем текущую
         return LocalDate.now();
     }
 
     @Override
-    public CollateralType getType() { return CollateralType.AIRPLANE;
+    public CollateralType getType() {
+        return CollateralType.AIRPLANE;
     }
 }
