@@ -3,24 +3,20 @@ package com.mcb.creditfactory.service.plane;
 import com.mcb.creditfactory.dto.AirPlaneDto;
 import com.mcb.creditfactory.external.ExternalApproveService;
 import com.mcb.creditfactory.model.AirPlane;
-import com.mcb.creditfactory.model.Raiting;
 import com.mcb.creditfactory.repository.AirPlaneRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.math.BigDecimal;
-import java.util.Comparator;
 import java.util.Optional;
 
 @Service
-public class AirplaneServiceImpl implements AirPlaneService {
-    private AirPlaneRepository repository;
+public class AirPlaneServiceImpl implements AirPlaneService {
+
+    @Autowired
     private ExternalApproveService approveService;
 
-
-    public AirplaneServiceImpl(AirPlaneRepository repository, ExternalApproveService approveService) {
-        this.repository = repository;
-        this.approveService = approveService;
-    }
+    @Autowired
+    private AirPlaneRepository airplaneRepository;
 
     @Override
     public boolean approve(AirPlaneDto dto) {
@@ -28,13 +24,13 @@ public class AirplaneServiceImpl implements AirPlaneService {
     }
 
     @Override
-    public AirPlane save(AirPlane plane) {
-        return repository.save(plane);
+    public AirPlane save(AirPlane airplane) {
+        return airplaneRepository.save(airplane);
     }
 
     @Override
     public Optional<AirPlane> load(Long id) {
-        return repository.findById(id);
+        return airplaneRepository.findById(id);
     }
 
     @Override
@@ -43,24 +39,27 @@ public class AirplaneServiceImpl implements AirPlaneService {
                 dto.getId(),
                 dto.getBrand(),
                 dto.getModel(),
+                dto.getManufacturer(),
                 dto.getYear(),
                 dto.getSize(),
                 dto.getPassengers(),
-                dto.getType()
+                dto.getType(),
+                dto.getRaitingList()
         );
     }
 
     @Override
-    public AirPlaneDto toDTO(AirPlane plane) {
+    public AirPlaneDto toDTO(AirPlane airplane) {
         return new AirPlaneDto(
-                plane.getId(),
-                plane.getBrand(),
-                plane.getModel(),
-                plane.getSize(),
-                plane.getPassengers(),
-                plane.getType(),
-                plane.getYear(),
-                getLastAssessmentValue(plane)
+                airplane.getId(),
+                airplane.getBrand(),
+                airplane.getModel(),
+                airplane.getManufacturer(),
+                airplane.getYear(),
+                airplane.getSize(),
+                airplane.getPassengers(),
+                airplane.getType(),
+                airplane.getRaitingList()
         );
     }
 
@@ -69,9 +68,4 @@ public class AirplaneServiceImpl implements AirPlaneService {
         return airplane.getId();
     }
 
-    private BigDecimal getLastAssessmentValue(AirPlane plane) {
-        return plane.getRaiting().stream()
-                .max(Comparator.comparing(Raiting::getLocalDate))
-                .get().getRaiting();
-    }
 }

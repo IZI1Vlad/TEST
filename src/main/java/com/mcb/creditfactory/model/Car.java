@@ -1,22 +1,32 @@
 package com.mcb.creditfactory.model;
 
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import java.math.BigDecimal;
+import java.util.List;
 
 @Data
 @NoArgsConstructor
+@AllArgsConstructor
 @Entity
-@EqualsAndHashCode(callSuper = true)
 @Table(name = "CAR")
-@ToString(callSuper = true)
-public class Car extends MainEntity {
-
-    @Column(name = "power")
+public class Car {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+    private String brand;
+    private String model;
     private Double power;
 
-    public Car(Long id, String brand, String model, Short year, Double power) {
-        super(id, brand, model, year);
-        this.power = power;
-    }
+    @Column(name = "year_of_issue")
+    private Short year;
+
+    @OneToMany(fetch = FetchType.EAGER, cascade = {CascadeType.ALL})
+    @JoinTable(name = "car_raiting",
+            joinColumns = {@JoinColumn(name = "car_id")},
+            inverseJoinColumns = {@JoinColumn(name = "raiting_id")})
+    private List<Raiting> raitingList;
 }

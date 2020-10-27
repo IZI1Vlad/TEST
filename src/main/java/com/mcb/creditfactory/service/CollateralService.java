@@ -3,121 +3,87 @@ package com.mcb.creditfactory.service;
 import com.mcb.creditfactory.dto.AirPlaneDto;
 import com.mcb.creditfactory.dto.CarDto;
 import com.mcb.creditfactory.dto.Collateral;
-import com.mcb.creditfactory.model.Raiting;
 import com.mcb.creditfactory.service.plane.AirPlaneService;
-import com.mcb.creditfactory.service.raiting.RaitingService;
 import com.mcb.creditfactory.service.car.CarService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import javax.transaction.Transactional;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
 
 @Service
-@Transactional
 public class CollateralService {
+    @Autowired
     private CarService carService;
-    private AirPlaneService planeService;
-    private RaitingService raitingService;
 
-    public CollateralService(CarService carService, AirPlaneService planeService, RaitingService raitingService) {
-        this.carService = carService;
-        this.planeService = planeService;
-        this.raitingService = raitingService;
+    @Autowired
+    private AirPlaneService airplaneService;
+
+    @SuppressWarnings("ConstantConditions")
+    public Long saveCollateral(Collateral object) {
+        if ((object instanceof CarDto)) {
+            CarDto car = (CarDto) object;
+            return saveCar(car);
+        } else if ((object instanceof AirPlaneDto)) {
+            AirPlaneDto airplane = (AirPlaneDto) object;
+            return saveAirplane(airplane);
+        } else {
+            throw new IllegalArgumentException();
+        }
     }
 
-    public Long saveCollateral(Collateral object) {
-        Raiting raiting;
+    public Collateral getInfo(Collateral object) {
+        if ((object instanceof CarDto)) {
+            CarDto car = (CarDto) object;
+            return getCarInfo(car);
+        } else if ((object instanceof AirPlaneDto)) {
+            AirPlaneDto plane = (AirPlaneDto) object;
+            return getAirplaneInfo(plane);
+        } else {
+            throw new IllegalArgumentException();
+        }
+    }
 
-        if (object instanceof CarDto) {
-
-            CarDto carDto = (CarDto) object;
-            boolean approved = carService.approve(carDto);
-
-            if (!approved) {
-                return null;
-            }
-
-            raiting = raitingService.save(carDto.getValue());
-
-            return saveCarEntityAndGetId(raiting, carDto);
-
+    private Long saveCar(CarDto car) {
+        boolean approved = carService.approve(car);
+        if (!approved) {
+            return null;
         }
 
-        else if (object instanceof AirPlaneDto) {
-
-
-            AirPlaneDto planeDto = (AirPlaneDto) object;
-            boolean approved = planeService.approve(planeDto);
-            if (!approved) {
-                return null;
-            }
-
-            raiting = raitingService.save(planeDto.getValue());
-
-            return saveAirplaneEntityAndGetId(raiting, planeDto);
-
-        } else throw new IllegalArgumentException();
-
-    }
-
-    private Long saveAirplaneEntityAndGetId(Raiting assessment, AirPlaneDto airplaneDto) {
-        return Optional.of(airplaneDto)
-                .map(planeService::fromDto)
-                .map(airplane -> {
-                    Long id = airplane.getId();
-                    List<Raiting> list = new ArrayList<>();
-
-                    if (id != null) {
-                        list = planeService.load(id).get().getAssessments();
-                    }
-
-                    list.add(assessment);
-                    airplane.setAssessments(list);
-
-                    return planeService.save(airplane);
-                })
-                .map(planeService::getId)
-                .orElse(null);
-    }
-
-    private Long saveCarEntityAndGetId(Raiting assessment, CarDto carDto) {
-        return Optional.of(carDto)
+        return Optional.of(car)
                 .map(carService::fromDto)
-                .map(car -> {
-                    Long id = car.getId();
-                    List<Raiting> list = new ArrayList<>();
-
-                    if (id != null) {
-                        list = carService.load(id).get().getAssessments();
-                    }
-
-                    list.add(assessment);
-                    car.setAssessments(list);
-
-                    return carService.save(car);
-                })
+                .map(carService::save)
                 .map(carService::getId)
                 .orElse(null);
     }
 
-    public Collateral getInfo(Collateral object) {
-        if (object instanceof CarDto) {
+    private Long saveAirplane(AirPlaneDto plane) {
+        boolean approved = airplaneService.approve(plane);
+        if (!approved) {
+            return null;
+        }
 
-            return Optional.of((CarDto) object)
-                    .flatMap(carDto -> carService.load(carDto.getId()))
-                    .map(carService::toDTO)
-                    .orElse(null);
-
-        } else if (object instanceof AirPlaneDto) {
-
-            return Optional.of((AirPlaneDto) object)
-                    .flatMap(airplaneDto -> planeService.load(airplaneDto.getId()))
-                    .map(planeService::toDTO)
-                    .orElse(null);
-
-        } else throw new IllegalArgumentException();
+        return Optional.of(plane)
+                .map(airplaneService::fromDto)
+                .map(airplaneService::save)
+                .map(airplaneService::getId)
+                .orElse(null);
     }
 
+    private Collateral getCarInfo(CarDto car) {
+        return Optional.of(car)
+                .map(carService::fromDto)
+                .map(carService::getId)
+                .flatMap(carService::load)
+                .map(carService::toDTO)
+                .orElse(null);
+    }
+
+    private Collateral getAirplaneInfo(AirPlaneDto airplane) {
+        return Optional.of(airplane)
+                .map(airplaneService::fromDto)
+                .map(airplaneService::getId)
+                .flatMap(airplaneService::load)
+                .map(airplaneService::toDTO)
+                .orElse(null);
+    }
 }
