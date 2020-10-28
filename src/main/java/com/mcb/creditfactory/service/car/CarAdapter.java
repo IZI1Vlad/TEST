@@ -17,7 +17,7 @@ public class CarAdapter implements CollateralObject {
 
     @Override
     public BigDecimal getValue() {
-        List<Raiting> raitings = car.getRaitingListList();
+        List<Raiting> raitings = car.getRaitingList();
         return raitings != null ? raitings.stream()
                 .max(Comparator.comparing(Raiting::getDate))
                 .map(Raiting::getValue)
@@ -32,7 +32,7 @@ public class CarAdapter implements CollateralObject {
 
     @Override
     public LocalDate getDate() {
-        List<Raiting> raitings = car.getRaitingListList();
+        List<Raiting> raitings = car.getRaitingList();
         return raitings != null ? raitings.stream()
                 .max(Comparator.comparing(Raiting::getDate))
                 .map(Raiting::getDate)

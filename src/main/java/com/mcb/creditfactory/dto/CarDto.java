@@ -19,5 +19,5 @@ public class CarDto implements Collateral {
     private String model;
     private Double power;
     private Short year;
-    private List<Raiting> raitingListList;
+    private List<Raiting> raitingList;
 }

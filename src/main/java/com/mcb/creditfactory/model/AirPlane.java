@@ -3,27 +3,33 @@ package com.mcb.creditfactory.model;
 import lombok.*;
 
 import javax.persistence.*;
+import java.util.List;
 
 @Data
 @NoArgsConstructor
+@AllArgsConstructor
 @Entity
-@EqualsAndHashCode(callSuper = true)
 @Table(name = "AIRPLANE")
-public class AirPlane extends MainEntity {
+public class AirPlane {
 
-    @Column(name = "size")
-    private String size;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+    private String brand;
+    private String model;
+    private String manufacturer;
 
-    @Column(name = "passengers")
+    @Column(name = "year_of_issue")
+    private Short year;
+
+    @Column(name = "fuel_capacity")
+    private Integer size;
     private Integer passengers;
+    private String type;
 
-    @Column(name = "type")
-    private Integer type;
-
-    public AirPlane(Long id, String brand, String model, Short year, String size, Integer passengers, Integer type) {
-        super(id, brand, model, year);
-        this.size = size;
-        this.passengers = passengers;
-        this.type = type;
-    }
+    @OneToMany(fetch = FetchType.EAGER, cascade = {CascadeType.ALL})
+    @JoinTable(name = "airplane_raiting",
+            joinColumns = {@JoinColumn(name = "airplane_id", nullable = true)},
+            inverseJoinColumns = {@JoinColumn(name = "raiting_id")})
+    private List<Raiting> raitingList;
 }
